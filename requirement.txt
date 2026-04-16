@@ -6,8 +6,5 @@ seaborn==0.13.2
 gunicorn==20.1.0
 joblib
 flask
-<<<<<<< HEAD
 setuptools
 wheel
-=======
->>>>>>> 5c53ab37e83b48cc4fc8a0740dcaf44937404101
