@@ -21,6 +21,5 @@ def predict_api():
     prediction=model.predict(new_data)
     return render_template('index.html',prediction_text="The predicted price is {}".format(prediction[0]))
     
-
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
