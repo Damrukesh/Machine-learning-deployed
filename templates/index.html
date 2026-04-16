@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Efficiency Score Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="number"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e8f5e8;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 18px;
+            display: none;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Efficiency Score Predictor</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Enter your health and fitness data to predict your efficiency score
+        </p>
+        
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" required min="1" max="120" step="1">
+                <div class="help-text">Your age in years</div>
+            </div>
+
+            <div class="form-group">
+                <label for="sleep_hours">Sleep Hours</label>
+                <input type="number" id="sleep_hours" name="sleep_hours" required min="0" max="24" step="0.1">
+                <div class="help-text">Average hours of sleep per day</div>
+            </div>
+
+            <div class="form-group">
+                <label for="hydration_liters">Hydration (Liters)</label>
+                <input type="number" id="hydration_liters" name="hydration_liters" required min="0" max="10" step="0.1">
+                <div class="help-text">Daily water intake in liters</div>
+            </div>
+
+            <div class="form-group">
+                <label for="bmi">BMI</label>
+                <input type="number" id="bmi" name="bmi" required min="10" max="50" step="0.1">
+                <div class="help-text">Body Mass Index</div>
+            </div>
+
+            <div class="form-group">
+                <label for="workouts_per_week">Workouts Per Week</label>
+                <input type="number" id="workouts_per_week" name="workouts_per_week" required min="0" max="21" step="1">
+                <div class="help-text">Number of workout sessions per week</div>
+            </div>
+
+            <div class="form-group">
+                <label for="muscle_mass_ratio">Muscle Mass Ratio</label>
+                <input type="number" id="muscle_mass_ratio" name="muscle_mass_ratio" required min="0" max="1" step="0.001">
+                <div class="help-text">Muscle mass as a ratio (0-1)</div>
+            </div>
+
+            <div class="form-group">
+                <label for="body_fat_percentage">Body Fat Percentage</label>
+                <input type="number" id="body_fat_percentage" name="body_fat_percentage" required min="0" max="1" step="0.001">
+                <div class="help-text">Body fat as a decimal (0-1, e.g., 0.25 for 25%)</div>
+            </div>
+
+            <div class="form-group">
+                <label for="heart_rate_resting">Resting Heart Rate</label>
+                <input type="number" id="heart_rate_resting" name="heart_rate_resting" required min="40" max="120" step="0.1">
+                <div class="help-text">Resting heart rate in beats per minute</div>
+            </div>
+
+            <div class="form-group">
+                <label for="heart_rate_avg">Average Heart Rate</label>
+                <input type="number" id="heart_rate_avg" name="heart_rate_avg" required min="50" max="200" step="0.1">
+                <div class="help-text">Average heart rate during activities</div>
+            </div>
+
+            <div class="form-group">
+                <label for="continuous_exercise_days">Continuous Exercise Days</label>
+                <input type="number" id="continuous_exercise_days" name="continuous_exercise_days" required min="0" max="365" step="1">
+                <div class="help-text">Number of consecutive days you've exercised</div>
+            </div>
+
+            <button type="submit" class="submit-btn">Predict Efficiency Score</button>
+        </form>
+
+        <div id="result" class="result">
+            <h3>Predicted Efficiency Score</h3>
+            <p id="prediction-value" style="font-size: 24px; font-weight: bold; color: #4CAF50;"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                });
+                
+                const prediction = await response.json();
+                
+                document.getElementById('prediction-value').textContent = prediction.toFixed(3);
+                document.getElementById('result').style.display = 'block';
+                
+                // Scroll to result
+                document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while making the prediction. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
